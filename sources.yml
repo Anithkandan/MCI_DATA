@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: mci_data
+    tables:
+      - name: csat
+      - name: ivr
+      - name: subease
+
+models:
+  - name: dim_customer
+    description: "Customer dimension table"
+  - name: control_table_update
+    description: "Update CONTROL_TABLE with latest max dates"
