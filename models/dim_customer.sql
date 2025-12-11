@@ -1,6 +1,7 @@
 {{ config(
     materialized='incremental',
-    unique_key='customer_account_number'
+    unique_key='customer_account_number',
+    post_hook="{{ soft_delete_active_customers() }}"
 ) }}
 
 INSERT INTO DIM_CUSTOMER (
