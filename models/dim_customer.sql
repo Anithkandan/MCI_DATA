@@ -1,7 +1,6 @@
 {{ config(
     materialized='incremental',
-    unique_key='customer_id',
-    pre_hook="{{ macros.soft_delete_active_customers() }}"
+    unique_key='customer_id'
 ) }}
 
 WITH csat AS (
