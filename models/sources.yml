@@ -1,18 +1,11 @@
 version: 2
 
 sources:
-  - name: mci_data            # this is the source name used in dbt
-    database: KS_DEV          # Snowflake database
-    schema: MCI_DATA          # Snowflake schema
+  - name: MCI_DATA
+    database: KS_DEV
+    schema: MCI_DATA
     tables:
       - name: CSAT
       - name: IVR
       - name: SUBEASE
-      - name: DIM_BRAND 
-      - name: CONTROL_TABLE
-
-models:
-  - name: dim_customer
-    description: "Customer dimension table"
-  - name: control_table_update
-    description: "Update CONTROL_TABLE with latest max dates"
+      - name: DIM_BRAND
