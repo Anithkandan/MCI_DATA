@@ -27,7 +27,11 @@ WITH csat AS (
         'CSAT' AS DataSource
     FROM {{ source('mci_data','CSAT') }} c
     LEFT JOIN {{ ref('dim_brand') }} b ON c.brand_code = b.brand_code
-    WHERE TO_DATE(c.date) > (SELECT MAX_CREATIONDATE FROM {{ ref('control_table') }} WHERE TABLE_NAME='CSAT')
+    WHERE TO_DATE(c.date) > (
+        SELECT MAX_CREATIONDATE 
+        FROM {{ ref('control_table') }} 
+        WHERE TABLE_NAME='CSAT'
+    )
 ),
 
 ivr AS (
@@ -52,7 +56,11 @@ ivr AS (
         CURRENT_TIMESTAMP() AS Modified_At,
         'IVR' AS DataSource
     FROM {{ source('mci_data','IVR') }}
-    WHERE TO_DATE(date) > (SELECT MAX_CREATIONDATE FROM {{ ref('control_table') }} WHERE TABLE_NAME='IVR')
+    WHERE TO_DATE(date) > (
+        SELECT MAX_CREATIONDATE 
+        FROM {{ ref('control_table') }} 
+        WHERE TABLE_NAME='IVR'
+    )
 ),
 
 subease AS (
@@ -77,7 +85,11 @@ subease AS (
         CURRENT_TIMESTAMP() AS Modified_At,
         'SUBEASE' AS DataSource
     FROM {{ source('mci_data','SUBEASE') }}
-    WHERE TO_DATE(date) > (SELECT MAX_CREATIONDATE FROM {{ ref('control_table') }} WHERE TABLE_NAME='SUBEASE')
+    WHERE TO_DATE(date) > (
+        SELECT MAX_CREATIONDATE 
+        FROM {{ ref('control_table') }} 
+        WHERE TABLE_NAME='SUBEASE'
+    )
 )
 
 SELECT * FROM csat
