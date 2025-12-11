@@ -48,7 +48,7 @@
 
 
 # Name your project! Project names should contain only lowercase characters and underscores
-name: "my_new_project"
+name: "mci_data"
 version: "1.0.0"
 config-version: 2
 
