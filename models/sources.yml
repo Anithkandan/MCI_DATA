@@ -9,6 +9,7 @@ sources:
       - name: IVR
       - name: SUBEASE
       - name: DIM_BRAND 
+      - name: CONTROL_TABLE
 
 models:
   - name: dim_customer
