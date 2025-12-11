@@ -3,9 +3,9 @@ version: 2
 sources:
   - name: mci_data
     tables:
-      - name: csat
-      - name: ivr
-      - name: subease
+      - name: CSAT       # match Snowflake table names exactly
+      - name: IVR
+      - name: SUBEASE
 
 models:
   - name: dim_customer
