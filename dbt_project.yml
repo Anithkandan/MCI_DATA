@@ -70,8 +70,12 @@ clean-targets:
   - "dbt_packages"
 
 # Configuring models
+# models:
+#   MCI_DATA:
+#     +materialized: table   # all models under MCI_DATA will be tables by default
+#   update_dim_customer:
+#       +materialized: table
+
 models:
   MCI_DATA:
-    +materialized: table   # all models under MCI_DATA will be tables by default
-  update_dim_customer:
-      +materialized: table
+    +materialized: table 
