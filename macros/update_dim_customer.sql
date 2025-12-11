@@ -1,6 +1,7 @@
 -- macros/update_dim_customer.sql
 {% macro update_dim_customer() %}
 
+BEGIN
 -- 1️⃣ Deactivate existing active customers
 UPDATE DIM_CUSTOMER dim
 SET 
@@ -135,5 +136,5 @@ ON ctrl.TABLE_NAME = src.TABLE_NAME
 WHEN MATCHED THEN
     UPDATE SET MAX_CREATIONDATE = src.MAX_CREATIONDATE,
                MODIFYDATE = CURRENT_TIMESTAMP();
-
+END;
 {% endmacro %}
