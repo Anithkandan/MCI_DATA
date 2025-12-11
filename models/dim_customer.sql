@@ -1,6 +1,7 @@
 {{ config(
     materialized='incremental',
-    unique_key='customer_id'
+    unique_key='customer_id',
+    pre_hook="{{ macros.soft_delete_active_customers() }}"
 ) }}
 
 WITH csat AS (
@@ -24,10 +25,15 @@ WITH csat AS (
         CURRENT_TIMESTAMP() AS Created_At,
         CURRENT_TIMESTAMP() AS Modified_At,
         'CSAT' AS DataSource
-    FROM {{ source('mci_data','csat') }} c
+    FROM {{ source('mci_data','CSAT') }} c
     LEFT JOIN {{ ref('dim_brand') }} b ON c.brand_code = b.brand_code
-    WHERE TO_DATE(c.date) > (SELECT MAX_CREATIONDATE FROM {{ ref('control_table') }} WHERE TABLE_NAME='CSAT')
+    WHERE TO_DATE(c.date) > (
+        SELECT MAX_CREATIONDATE 
+        FROM {{ ref('control_table') }} 
+        WHERE TABLE_NAME='CSAT'
+    )
 ),
+
 ivr AS (
     SELECT
         '' AS customer_id,
@@ -49,9 +55,14 @@ ivr AS (
         CURRENT_TIMESTAMP() AS Created_At,
         CURRENT_TIMESTAMP() AS Modified_At,
         'IVR' AS DataSource
-    FROM {{ source('mci_data','ivr') }}
-    WHERE TO_DATE(date) > (SELECT MAX_CREATIONDATE FROM {{ ref('control_table') }} WHERE TABLE_NAME='IVR')
+    FROM {{ source('mci_data','IVR') }}
+    WHERE TO_DATE(date) > (
+        SELECT MAX_CREATIONDATE 
+        FROM {{ ref('control_table') }} 
+        WHERE TABLE_NAME='IVR'
+    )
 ),
+
 subease AS (
     SELECT
         '' AS customer_id,
@@ -73,8 +84,12 @@ subease AS (
         CURRENT_TIMESTAMP() AS Created_At,
         CURRENT_TIMESTAMP() AS Modified_At,
         'SUBEASE' AS DataSource
-    FROM {{ source('mci_data','subease') }}
-    WHERE TO_DATE(date) > (SELECT MAX_CREATIONDATE FROM {{ ref('control_table') }} WHERE TABLE_NAME='SUBEASE')
+    FROM {{ source('mci_data','SUBEASE') }}
+    WHERE TO_DATE(date) > (
+        SELECT MAX_CREATIONDATE 
+        FROM {{ ref('control_table') }} 
+        WHERE TABLE_NAME='SUBEASE'
+    )
 )
 
 SELECT * FROM csat
