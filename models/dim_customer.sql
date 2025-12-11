@@ -3,96 +3,106 @@
     unique_key='customer_account_number'
 ) }}
 
-WITH csat AS (
+INSERT INTO DIM_CUSTOMER (
+    customer_id,
+    brand_id,
+    customer_account_number,
+    customer_email,
+    customer_segment,
+    first_name,
+    last_name,
+    phone_number,
+    gender,
+    age,
+    state,
+    zipcode,
+    membership_duration_days,
+    is_auto_delivery,
+    brand_code,
+    DataSource
+)
+SELECT * FROM (
+    -------------------------------------------------------------
+    -- CSAT
+    -------------------------------------------------------------
     SELECT
-        "CUSTOMER ID" AS customer_id,
+        "CUSTOMER ID",
         b.brand_id,
-        LEFT("CUSTOMER ACCOUNT NUMBER",100) AS customer_account_number,
-        emailaddress AS customer_email,
+        LEFT("CUSTOMER ACCOUNT NUMBER",256),
+        emailaddress,
         '' AS customer_segment,
         '' AS first_name,
         '' AS last_name,
         '' AS phone_number,
         '' AS gender,
-        Age AS age,
+        Age,
         state,
         zipcode,
-        "MEMBERSHIP DURATION" AS membership_duration_days,
-        CASE WHEN "DO YOU HAVE AUTO DELIVERY" = 'Yes' THEN 1 ELSE 0 END AS is_auto_delivery,
+        "MEMBERSHIP DURATION",
+        CASE WHEN "DO YOU HAVE AUTO DELIVERY" = 'Yes' THEN 1 ELSE 0 END as is_auto_delivery,
         c.brand_code,
-        1 AS Active_Flag,
-        CURRENT_TIMESTAMP() AS Created_At,
-        CURRENT_TIMESTAMP() AS Modified_At,
-        'CSAT' AS DataSource
-    FROM {{ source('mci_data','CSAT') }} c
-    LEFT JOIN {{ ref('dim_brand') }} b ON c.brand_code = b.brand_code
-    WHERE TO_DATE(c.date) > (
-        SELECT MAX_CREATIONDATE 
-        FROM {{ ref('control_table') }} 
-        WHERE TABLE_NAME='CSAT'
+        'CSAT'
+    FROM KS_DEV.MCI_DATA.CSAT c
+    LEFT JOIN dim_brand b ON c.brand_code = b.brand_code
+    WHERE TO_TIMESTAMP(c.date) > (
+        SELECT MAX_CREATIONDATE FROM CONTROL_TABLE WHERE TABLE_NAME='CSAT'
     )
-),
-
-ivr AS (
+ 
+    UNION ALL
+ 
+    -------------------------------------------------------------
+    -- IVR
+    -------------------------------------------------------------
     SELECT
-        '' AS customer_id,
-        NULL AS brand_id,
-        LEFT("ACCOUNT",100) AS customer_account_number,
-        email AS customer_email,
-        '' AS customer_segment,
-        "FIRST-NAME" AS first_name,
-        "LAST-NAME" AS last_name,
-        "PHONENUMBER-ENTERED" AS phone_number,
-        '' AS gender,
-        NULL AS age,
-        NULL AS state,
-        NULL AS zipcode,
-        NULL AS membership_duration_days,
-        0 AS is_auto_delivery,
-        brand AS brand_code,
-        1 AS Active_Flag,
-        CURRENT_TIMESTAMP() AS Created_At,
-        CURRENT_TIMESTAMP() AS Modified_At,
-        'IVR' AS DataSource
-    FROM {{ source('mci_data','IVR') }}
-    WHERE TO_DATE(date) > (
-        SELECT MAX_CREATIONDATE 
-        FROM {{ ref('control_table') }} 
-        WHERE TABLE_NAME='IVR'
+        '0' as Customer_ID,
+         b.brand_id,
+        LEFT("ACCOUNT",256) as ACCOUNT_NUMBER,
+        email,
+        '' CUSTOMER__SEGMENT,
+        "FIRST-NAME" as FIRST_NAME,
+        "LAST-NAME" as LAST_NAME,
+        "PHONENUMBER-ENTERED" as PHONE_NO,
+        '' as GENDER,
+        '' as AGE,
+        '' as STATE,
+        '' as ZIPCODE,
+        0 as MEMBERSHIP_DURATION ,
+        0 as IS_AUTO_DELIVERY,
+        brand as BRANDCODE,
+        'IVR'
+    FROM KS_DEV.MCI_DATA.IVR i
+    LEFT JOIN dim_brand b ON i.brand = b.brand_code
+    WHERE TO_TIMESTAMP(i.date) > (
+        SELECT MAX_CREATIONDATE FROM CONTROL_TABLE WHERE TABLE_NAME='IVR'
     )
-),
-
-subease AS (
+ 
+    UNION ALL
+ 
+    -------------------------------------------------------------
+    -- SUBEASE
+    -------------------------------------------------------------
     SELECT
-        '' AS customer_id,
-        NULL AS brand_id,
-        '' AS customer_account_number,
+        '0' as Customer_ID,
+         b.brand_id,
+        '' as ACCOUNT_NUMBER,
         customer_email,
-        '' AS customer_segment,
-        customer_first_name AS first_name,
-        customer_last_name AS last_name,
-        IsContact_Phone AS phone_number,
-        '' AS gender,
-        NULL AS age,
-        NULL AS state,
-        NULL AS zipcode,
-        NULL AS membership_duration_days,
-        0 AS is_auto_delivery,
-        brand_code,
-        1 AS Active_Flag,
-        CURRENT_TIMESTAMP() AS Created_At,
-        CURRENT_TIMESTAMP() AS Modified_At,
-        'SUBEASE' AS DataSource
-    FROM {{ source('mci_data','SUBEASE') }}
-    WHERE TO_DATE(date) > (
-        SELECT MAX_CREATIONDATE 
-        FROM {{ ref('control_table') }} 
-        WHERE TABLE_NAME='SUBEASE'
+        '' as CUSTOMER__SEGMENT,
+        customer_first_name,
+        customer_last_name,
+        IsContact_Phone,
+        '' as GENDER,
+        '' as AGE,
+        '' as STATE,
+        '' as ZIPCODE,
+        0 as MEMBERSHIP_DUR,
+        0 as IS_AUTO_DELIVERY,
+        s.brand_code,
+        'SUBEASE'
+    FROM KS_DEV.MCI_DATA.SUBEASE s
+    LEFT JOIN dim_brand b ON s.brand_code = b.brand_code
+    WHERE TO_TIMESTAMP(s.date) > (
+        SELECT MAX_CREATIONDATE FROM CONTROL_TABLE WHERE TABLE_NAME='SUBEASE'
     )
-)
-
-SELECT * FROM csat
-UNION ALL
-SELECT * FROM ivr
-UNION ALL
-SELECT * FROM subease
+) src;
+ 
+ 

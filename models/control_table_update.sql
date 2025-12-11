@@ -1,14 +1,15 @@
 {{ config(materialized='table') }}
 
-SELECT 'CSAT' AS TABLE_NAME, MAX(TO_DATE(_ab_source_file_last_modified)) AS MAX_CREATIONDATE
-FROM {{ source('mci_data','CSAT') }}
-
-UNION ALL
-
-SELECT 'IVR', MAX(TO_DATE(_ab_source_file_last_modified))
-FROM {{ source('mci_data','IVR') }}
-
-UNION ALL
-
-SELECT 'SUBEASE', MAX(TO_DATE(_ab_source_file_last_modified))
-FROM {{ source('mci_data','SUBEASE') }}
+MERGE INTO CONTROL_TABLE ctrl
+USING (
+    SELECT 'CSAT' AS TABLE_NAME, MAX(TO_TIMESTAMP(_ab_source_file_last_modified)) AS MAX_CREATIONDATE FROM KS_DEV.MCI_DATA.CSAT
+    UNION ALL
+    SELECT 'IVR', MAX(TO_TIMESTAMP(_ab_source_file_last_modified)) FROM KS_DEV.MCI_DATA.IVR
+    UNION ALL
+    SELECT 'SUBEASE', MAX(TO_TIMESTAMP(_ab_source_file_last_modified)) FROM KS_DEV.MCI_DATA.SUBEASE
+) src
+ON ctrl.TABLE_NAME = src.TABLE_NAME
+WHEN MATCHED THEN
+    UPDATE 
+    SET MAX_CREATIONDATE = src.MAX_CREATIONDATE,
+        MODIFYDATE = CURRENT_TIMESTAMP();
