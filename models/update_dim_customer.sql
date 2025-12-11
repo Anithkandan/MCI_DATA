@@ -1,4 +1,4 @@
-{% macro update_dim_customer() %}
+
 BEGIN TRANSACTION;
 
 -- 1. Deactivate existing active customers
@@ -137,4 +137,3 @@ WHEN MATCHED THEN
                MODIFYDATE = CURRENT_TIMESTAMP();
 
 COMMIT;
-{% endmacro %}
